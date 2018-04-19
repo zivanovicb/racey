@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import theme from "../theme";
 import Search from "./components/Search/index";
+import data from "./data.json";
+import CarCatalog from "./components/CarCatalog/index";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -17,6 +19,7 @@ const Container = styled.div`
   margin: 0 auto;
   padding-top: 40px;
   padding-bottom: 40px;
+  flex-flow: column nowrap;
   @media screen and (max-width: 1187px) {
     width: 90%;
   }
@@ -29,10 +32,12 @@ export default class Home extends Component {
   handleSearchChange = e => this.setState({ searchValue: e.target.value });
 
   render() {
+    console.log(data);
     return (
       <Wrapper>
         <Container>
           <Search handleInputChange={this.handleSearchChange} />
+          <CarCatalog style={{ marginTop: "30px" }} cars={data.cars} />
         </Container>
       </Wrapper>
     );
