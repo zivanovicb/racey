@@ -9,6 +9,9 @@ const Wrapper = styled.div`
   flex-flow: row wrap;
 `;
 export default class extends Component {
+  state = {
+    cars: this.props.cars
+  };
   static propTypes = {
     cars: PropTypes.arrayOf(
       PropTypes.shape({
@@ -19,9 +22,22 @@ export default class extends Component {
         speed: PropTypes.number.isRequired
       })
     ),
+    searchValue: PropTypes.string.isRequired,
     style: PropTypes.object
   };
 
+  componentDidUpdate(prevProps) {
+    if (this.props.searchValue !== prevProps.searchValue) {
+      const cars = this.props.cars.filter((car, i) => {
+        return (
+          car.name
+            .toLowerCase()
+            .indexOf(this.props.searchValue.toLowerCase()) >= 0
+        );
+      });
+      this.setState({ cars });
+    }
+  }
   renderCars = cars => {
     return cars.map((car, i) => {
       return (
@@ -39,7 +55,7 @@ export default class extends Component {
   };
   render() {
     return (
-      <Wrapper {...this.props}>{this.renderCars(this.props.cars)}</Wrapper>
+      <Wrapper {...this.props}>{this.renderCars(this.state.cars)}</Wrapper>
     );
   }
 }

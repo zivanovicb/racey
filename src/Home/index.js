@@ -32,12 +32,15 @@ export default class Home extends Component {
   handleSearchChange = e => this.setState({ searchValue: e.target.value });
 
   render() {
-    console.log(data);
     return (
       <Wrapper>
         <Container>
           <Search handleInputChange={this.handleSearchChange} />
-          <CarCatalog style={{ marginTop: "30px" }} cars={data.cars} />
+          <CarCatalog
+            style={{ marginTop: "30px" }}
+            cars={data.cars}
+            searchValue={this.state.searchValue}
+          />
         </Container>
       </Wrapper>
     );

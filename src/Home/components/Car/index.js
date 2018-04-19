@@ -146,7 +146,6 @@ const CarHoverOverlay = styled.div`
   }
 `;
 function Car({ image, name, description, id, speed, style }) {
-  console.log(id, name);
   return (
     <CarWrapper style={style}>
       <CarNum>#{id}</CarNum>
