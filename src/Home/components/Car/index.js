@@ -21,6 +21,17 @@ const CarWrapper = styled.div`
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   &:hover {
     cursor: pointer;
+    #bottom-bar {
+      opacity: 0;
+    }
+    #hover-overlay {
+      opacity: 1;
+      top: 0;
+      * {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   }
   @media screen and (max-width: 750px) {
     width: 100%;
@@ -106,13 +117,41 @@ const CarTopSpeed = styled.div`
     background-position: center center;
   }
 `;
+
+const CarHoverOverlay = styled.div`
+  position: absolute;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  top: 210px;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  * {
+    transition: 0.5s
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.5s ease-in-out;
+  }
+  #car-name {
+    color: ${theme.blue};
+    font-size: 1.2rem;
+  }
+`;
 function Car({ image, name, description, id, speed, style }) {
   console.log(id, name);
   return (
     <CarWrapper style={style}>
       <CarNum>#{id}</CarNum>
       <CarImg src={images[id].src} />
-      <CarBottomBar>
+      <CarBottomBar id="bottom-bar">
         <span>{name}</span>
 
         <CarTopSpeed>
@@ -120,6 +159,15 @@ function Car({ image, name, description, id, speed, style }) {
           <span>{speed}</span>
         </CarTopSpeed>
       </CarBottomBar>
+
+      <CarHoverOverlay id="hover-overlay">
+        <span id="car-name">{name}</span>
+        <p>{description}</p>
+        <CarTopSpeed>
+          <div id="topspeed-icon" style={{ marginRight: "10px" }} />
+          <span>{speed}</span>
+        </CarTopSpeed>
+      </CarHoverOverlay>
     </CarWrapper>
   );
 }
