@@ -2,12 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import theme from "../../../theme";
-import puntoImg from "../../img/punto.png";
-import hondaImg from "../../img/honda.png";
-import smartImg from "../../img/smart.png";
-import mazdaImg from "../../img/mazda.png";
-import benzImg from "../../img/benz.png";
 import speedometerIcon from "../../img/speedometer.svg";
+import images from "./images";
 
 const CarWrapper = styled.div`
   display: flex;
@@ -19,6 +15,8 @@ const CarWrapper = styled.div`
   overflow: hidden;
   background: ${theme.midGrey};
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  transition: all 0.25s ease-in-out;
+  opacity: ${props => (props.active ? "1" : "0.3")};
   &:hover {
     cursor: pointer;
     #bottom-bar {
@@ -50,43 +48,6 @@ const CarImg = styled.img`
   max-width: 100%;
 `;
 
-const images = {
-  "1": {
-    src: puntoImg,
-    style: {
-      width: "257px",
-      height: "135px"
-    }
-  },
-  "2": {
-    src: benzImg,
-    style: {
-      width: "249px",
-      height: "150px"
-    }
-  },
-  "3": {
-    src: hondaImg,
-    style: {
-      width: "192px",
-      height: "112px"
-    }
-  },
-  "4": {
-    src: mazdaImg,
-    style: {
-      width: "241px",
-      height: "126px"
-    }
-  },
-  "5": {
-    src: smartImg,
-    style: {
-      width: "192px",
-      height: "136px"
-    }
-  }
-};
 const CarBottomBar = styled.div`
   position: absolute;
   display: flex;
@@ -145,9 +106,10 @@ const CarHoverOverlay = styled.div`
     font-size: 1.2rem;
   }
 `;
-function Car({ image, name, description, id, speed, style }) {
+
+function Car({ image, name, description, id, speed, style, active }) {
   return (
-    <CarWrapper style={style}>
+    <CarWrapper style={Object.assign({}, style)} active={active}>
       <CarNum>#{id}</CarNum>
       <CarImg src={images[id].src} />
       <CarBottomBar id="bottom-bar">
@@ -177,7 +139,12 @@ Car.propTypes = {
   id: PropTypes.number.isRequired,
   description: PropTypes.string.isRequired,
   speed: PropTypes.number.isRequired,
+  active: PropTypes.bool.isRequired,
   style: PropTypes.object
+};
+
+Car.defaultProps = {
+  active: true
 };
 
 export default Car;

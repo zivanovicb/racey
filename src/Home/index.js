@@ -26,10 +26,33 @@ const Container = styled.div`
 `;
 export default class Home extends Component {
   state = {
-    searchValue: ""
+    searchValue: "",
+    cars: data.cars
   };
 
+  componentDidMount() {
+    this.setState({ cars: this.makeCarsActive(this.state.cars) });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.searchValue !== prevState.searchValue) {
+      const cars = this.state.cars.map((car, i) => {
+        return {
+          ...car,
+          active:
+            car.name
+              .toLowerCase()
+              .indexOf(this.state.searchValue.toLowerCase()) >= 0
+              ? true
+              : false
+        };
+      });
+      this.setState({ cars });
+    }
+  }
+
   handleSearchChange = e => this.setState({ searchValue: e.target.value });
+  makeCarsActive = cars => cars.map((car, i) => ({ ...car, active: true }));
 
   render() {
     return (
@@ -38,7 +61,7 @@ export default class Home extends Component {
           <Search handleInputChange={this.handleSearchChange} />
           <CarCatalog
             style={{ marginTop: "30px" }}
-            cars={data.cars}
+            cars={this.state.cars}
             searchValue={this.state.searchValue}
           />
         </Container>

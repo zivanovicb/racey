@@ -2,16 +2,16 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import Car from "../Car/index";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-flow: row wrap;
+  #carcatalog-wrapper {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+  }
 `;
 export default class extends Component {
-  state = {
-    cars: this.props.cars
-  };
   static propTypes = {
     cars: PropTypes.arrayOf(
       PropTypes.shape({
@@ -19,43 +19,45 @@ export default class extends Component {
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
-        speed: PropTypes.number.isRequired
+        speed: PropTypes.number.isRequired,
+        active: PropTypes.bool
       })
     ),
     searchValue: PropTypes.string.isRequired,
     style: PropTypes.object
   };
 
-  componentDidUpdate(prevProps) {
-    if (this.props.searchValue !== prevProps.searchValue) {
-      const cars = this.props.cars.filter((car, i) => {
-        return (
-          car.name
-            .toLowerCase()
-            .indexOf(this.props.searchValue.toLowerCase()) >= 0
-        );
-      });
-      this.setState({ cars });
-    }
-  }
   renderCars = cars => {
     return cars.map((car, i) => {
       return (
-        <Car
-          key={i}
-          id={car.id}
-          name={car.name}
-          image={car.image}
-          description={car.description}
-          speed={car.speed}
-          style={{ margin: "5px" }}
-        />
+        <CSSTransition
+          key={car.id}
+          timeout={500}
+          classNames="fade"
+          appear={true}
+        >
+          <Car
+            id={car.id}
+            name={car.name}
+            image={car.image}
+            description={car.description}
+            speed={car.speed}
+            active={car.active}
+            style={{
+              margin: "5px"
+            }}
+          />
+        </CSSTransition>
       );
     });
   };
   render() {
     return (
-      <Wrapper {...this.props}>{this.renderCars(this.state.cars)}</Wrapper>
+      <Wrapper {...this.props}>
+        <TransitionGroup id="carcatalog-wrapper">
+          {this.renderCars(this.props.cars)}
+        </TransitionGroup>
+      </Wrapper>
     );
   }
 }
