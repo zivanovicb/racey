@@ -4,6 +4,7 @@ import theme from "../theme";
 import Search from "./components/Search/index";
 import data from "./data.json";
 import CarCatalog from "./components/CarCatalog/index";
+import RaceWrapper from "./components/RaceWrapper/index";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -64,6 +65,7 @@ export default class Home extends Component {
             cars={this.state.cars}
             searchValue={this.state.searchValue}
           />
+          <RaceWrapper cars={this.state.cars} style={{ marginTop: "20px" }} />
         </Container>
       </Wrapper>
     );
