@@ -5,6 +5,7 @@ import theme from "../../../theme";
 import FractionRow from "../FractionRow/index";
 import Fraction from "../Fraction/index";
 import Racer from "../../facc/Racer/index";
+import TrafficLight from "../TrafficLight/index";
 import MediaQuery from "react-responsive";
 
 const Wrapper = styled.div`
@@ -26,7 +27,6 @@ const FractionImg = styled.img`
 `;
 export default class RaceWrapper extends Component {
   state = {
-    fractionsNum: 9,
     distance: this.props.distance,
     speedLimits: this.props.speedLimits,
     trafficLights: this.props.trafficLights,
@@ -61,23 +61,80 @@ export default class RaceWrapper extends Component {
     style: PropTypes.object
   };
 
+  desktopFractions = 10;
+  mobileFractions = 2;
+
+  componentDidUpdate(prevProps) {
+    if (this.props.trafficLights !== prevProps.trafficLights) {
+      this.setState({ trafficLights: this.props.trafficLights });
+    }
+  }
+
+  getTrafficLightsFractions = ({ totalFractions }) => {
+    const { distance } = this.state;
+    return this.state.trafficLights.map((light, i) => {
+      // Fraction where this traffic light should be located
+      return {
+        ...light,
+        fraction: parseInt(light.position * totalFractions / distance, 10)
+      };
+    });
+  };
   renderRacerFractions = (currentFraction, currentCar, totalFractions) => {
     let fractions = [];
+    const lightsWithFraction = this.getTrafficLightsFractions({
+      totalFractions
+    });
     for (let i = 0; i < totalFractions; i++) {
+      const trafficLight = lightsWithFraction.filter(
+        (light, j) => light.fraction === i
+      )[0];
+
       const fr = (
         <Fraction
           key={i}
           index={i}
           isCar={true}
           isMobile={totalFractions === 2}
+          hasTrafficLight={!!trafficLight}
         >
           {<FractionImg src={currentCar.image} shown={i === currentFraction} />}
+          {!!trafficLight && (
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column nowrap",
+                justifyContent: "center"
+              }}
+            >
+              <div
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  background: "rgba(18,255,0)",
+                  opacity: !trafficLight.red ? "1" : "0.2",
+                  marginBottom: "5px",
+                  borderRadius: "100%"
+                }}
+              />
+              <div
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  background: "red",
+                  opacity: trafficLight.red ? "1" : "0.2",
+                  borderRadius: "100%"
+                }}
+              />
+            </div>
+          )}
         </Fraction>
       );
       fractions.push(fr);
     }
     return fractions;
   };
+
   renderRacers = ({ cars, fractions }) => {
     let rows = [];
     for (let i = 0; i < cars.length; i++) {
@@ -114,6 +171,7 @@ export default class RaceWrapper extends Component {
       { value: "f9" }
     ];
 
+    // eslint-disable-next-line
     return headings.map((heading, i) => {
       if (i <= fractions - 1) {
         return (
@@ -126,6 +184,34 @@ export default class RaceWrapper extends Component {
       }
     });
   };
+
+  renderTrafficLights = ({ trafficLights }) => {
+    return trafficLights.map((light, i) => (
+      <TrafficLight
+        started={this.state.started}
+        ended={this.state.ended}
+        position={light.position}
+        duration={light.duration}
+        red={light.red}
+        toggleTrafficLight={this.toggleTrafficLight}
+        key={i}
+      />
+    ));
+  };
+  toggleTrafficLight = ({ position, red }) => {
+    let trafficLight = this.state.trafficLights.filter(
+      (light, i) => light.position === position
+    )[0];
+    trafficLight.red = red;
+
+    this.setState(
+      prevState => ({
+        ...prevState,
+        trafficLights: [...this.state.trafficLights, ...trafficLight]
+      }),
+      () => console.log(this.state)
+    );
+  };
   render() {
     return (
       <Wrapper style={this.props.style}>
@@ -135,18 +221,45 @@ export default class RaceWrapper extends Component {
               return (
                 <React.Fragment>
                   <FractionRow>
-                    {this.renderTableHeadings({ fractions: 10 })}
+                    {this.renderTableHeadings({
+                      fractions: this.desktopFractions
+                    })}
                   </FractionRow>
-                  {this.renderRacers({ cars: this.props.cars, fractions: 10 })}
+
+                  {this.renderRacers({
+                    cars: this.props.cars,
+                    fractions: this.desktopFractions
+                  })}
+
+                  {this.renderTrafficLights({
+                    trafficLights: this.state.trafficLights,
+                    fractions: this.desktopFractions
+                  })}
+
+                  <button
+                    onClick={() =>
+                      this.setState({
+                        started: !this.state.started,
+                        ended: this.state.started ? true : false
+                      })
+                    }
+                  >
+                    OK
+                  </button>
                 </React.Fragment>
               );
             } else {
               return (
                 <React.Fragment>
                   <FractionRow>
-                    {this.renderTableHeadings({ fractions: 2 })}
+                    {this.renderTableHeadings({
+                      fractions: this.mobileFractions
+                    })}
                   </FractionRow>
-                  {this.renderRacers({ cars: this.props.cars, fractions: 2 })}
+                  {this.renderRacers({
+                    cars: this.props.cars,
+                    fractions: this.mobileFractions
+                  })}
                 </React.Fragment>
               );
             }

@@ -27,7 +27,7 @@ function Search({ handleInputChange }) {
     <Input
       type="text"
       onChange={handleInputChange}
-      placeholder="Search by car name"
+      placeholder="Search by name"
     />
   );
 }

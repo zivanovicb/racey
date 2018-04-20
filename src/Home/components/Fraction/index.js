@@ -13,7 +13,9 @@ const Fraction = styled.div`
         ? "17px 10px"
         : "20px 30px"
       : props.isCar
-        ? "20px 29px"
+        ? props.hasTrafficLight
+          ? "20px 23px"
+          : "20px 29px"
         : "20px 45px"};
   color: white;
   margin-right: 3px;
