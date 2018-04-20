@@ -5,6 +5,7 @@ import theme from "../../../theme";
 import FractionRow from "../FractionRow/index";
 import Fraction from "../Fraction/index";
 import Racer from "../../facc/Racer/index";
+import MediaQuery from "react-responsive";
 
 const Wrapper = styled.div`
   width:100%;
@@ -18,6 +19,10 @@ const FractionImg = styled.img`
   width: 52px;
   height: 28px;
   opacity: ${props => (props.shown ? "1" : "0")};
+  @media screen and (max-width: 1200px) {
+    width: 62px;
+    height: 43px;
+  }
 `;
 export default class RaceWrapper extends Component {
   state = {
@@ -56,11 +61,16 @@ export default class RaceWrapper extends Component {
     style: PropTypes.object
   };
 
-  renderRacerFractions = (currentFraction, currentCar) => {
+  renderRacerFractions = (currentFraction, currentCar, totalFractions) => {
     let fractions = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < totalFractions; i++) {
       const fr = (
-        <Fraction key={i} index={i} isCar={true}>
+        <Fraction
+          key={i}
+          index={i}
+          isCar={true}
+          isMobile={totalFractions === 2}
+        >
           {<FractionImg src={currentCar.image} shown={i === currentFraction} />}
         </Fraction>
       );
@@ -68,7 +78,7 @@ export default class RaceWrapper extends Component {
     }
     return fractions;
   };
-  renderRacers = cars => {
+  renderRacers = ({ cars, fractions }) => {
     let rows = [];
     for (let i = 0; i < cars.length; i++) {
       const Row = (
@@ -76,7 +86,7 @@ export default class RaceWrapper extends Component {
           <Racer>
             {currentFraction => (
               <React.Fragment>
-                {this.renderRacerFractions(currentFraction, cars[i])}
+                {this.renderRacerFractions(currentFraction, cars[i], fractions)}
               </React.Fragment>
             )}
           </Racer>
@@ -86,7 +96,9 @@ export default class RaceWrapper extends Component {
     }
     return rows;
   };
-  renderTableHeadings = () => {
+  renderTableHeadings = ({ fractions }) => {
+    const isMobile = fractions === 2;
+
     const headings = [
       { value: "#" },
       {
@@ -103,18 +115,43 @@ export default class RaceWrapper extends Component {
     ];
 
     return headings.map((heading, i) => {
-      return (
-        <Fraction key={i} index={i}>
-          <span className="table-heading">{heading.value}</span>
-        </Fraction>
-      );
+      if (i <= fractions - 1) {
+        return (
+          <Fraction key={i} index={i} isMobile={isMobile}>
+            <span className="table-heading">
+              {i === 1 && isMobile ? "Position" : heading.value}
+            </span>
+          </Fraction>
+        );
+      }
     });
   };
   render() {
     return (
       <Wrapper style={this.props.style}>
-        <FractionRow>{this.renderTableHeadings()}</FractionRow>
-        {this.renderRacers(this.props.cars)}
+        <MediaQuery minDeviceWidth={1200}>
+          {matches => {
+            if (matches) {
+              return (
+                <React.Fragment>
+                  <FractionRow>
+                    {this.renderTableHeadings({ fractions: 10 })}
+                  </FractionRow>
+                  {this.renderRacers({ cars: this.props.cars, fractions: 10 })}
+                </React.Fragment>
+              );
+            } else {
+              return (
+                <React.Fragment>
+                  <FractionRow>
+                    {this.renderTableHeadings({ fractions: 2 })}
+                  </FractionRow>
+                  {this.renderRacers({ cars: this.props.cars, fractions: 2 })}
+                </React.Fragment>
+              );
+            }
+          }}
+        </MediaQuery>
       </Wrapper>
     );
   }

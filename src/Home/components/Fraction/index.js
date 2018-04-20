@@ -6,6 +6,7 @@ const Fraction = styled.div`
   justify-content: center;
   align-items: center;
   background: black;
+  flex: ${props => (props.isMobile ? "1" : "0")};
   padding: ${props =>
     props.index === 0
       ? props.isCar
@@ -17,6 +18,11 @@ const Fraction = styled.div`
   color: white;
   margin-right: 3px;
   margin-bottom: 5px;
+  transition: all 0.1s ease-in-out;
+  &:hover {
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+  }
   .table-heading {
     color: ${theme.blue};
     font-size: 1.375rem;
