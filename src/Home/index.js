@@ -28,11 +28,17 @@ const Container = styled.div`
 export default class Home extends Component {
   state = {
     searchValue: "",
-    cars: data.cars
+    cars: data.cars,
+    distance: data.distance,
+    trafficLights: data.traffic_lights,
+    speedLimits: data.speed_limits
   };
 
   componentDidMount() {
-    this.setState({ cars: this.makeCarsActive(this.state.cars) });
+    this.setState({
+      cars: this.makeCarsActive(this.state.cars),
+      trafficLights: this.makeTrafficLightsRed(this.state.trafficLights)
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -54,6 +60,8 @@ export default class Home extends Component {
 
   handleSearchChange = e => this.setState({ searchValue: e.target.value });
   makeCarsActive = cars => cars.map((car, i) => ({ ...car, active: true }));
+  makeTrafficLightsRed = trafficLights =>
+    trafficLights.map((light, i) => ({ ...light, red: false }));
 
   render() {
     return (
@@ -61,11 +69,17 @@ export default class Home extends Component {
         <Container>
           <Search handleInputChange={this.handleSearchChange} />
           <CarCatalog
-            style={{ marginTop: "30px" }}
             cars={this.state.cars}
             searchValue={this.state.searchValue}
+            style={{ marginTop: "30px" }}
           />
-          <RaceWrapper cars={this.state.cars} style={{ marginTop: "20px" }} />
+          <RaceWrapper
+            cars={this.state.cars}
+            distance={this.state.distance}
+            trafficLights={this.state.trafficLights}
+            speedLimits={this.state.speedLimits}
+            style={{ marginTop: "20px" }}
+          />
         </Container>
       </Wrapper>
     );
