@@ -6,7 +6,8 @@ export default class Racer extends Component {
     position: 0,
     maxSpeed: this.props.maxSpeed,
     currentSpeed: this.props.maxSpeed / 150,
-    driving: false
+    driving: false,
+    finished: false
     // Will have traffic lights spread over state as objects
     // tf1: {}, tf2: {} and so on
   };
@@ -41,7 +42,6 @@ export default class Racer extends Component {
       this.setState(prevState => {
         return {
           ...prevState,
-          driving: true,
           position: prevState.position + prevState.currentSpeed
         };
       });
@@ -80,15 +80,14 @@ export default class Racer extends Component {
       this.setupInterval(this.props.refreshRate);
     }
 
-    // We React to on the driving boolean
-    // As soon as it changes from false to true we change current speed
-    // And we have setInterval which will use that current speed to move cars
-    if (this.state.driving !== prevState.driving && this.state.driving) {
-      this.setCurrentSpeed(this.sortedSpeedLimits);
+    // Trafic lights make racer go driving:false
+    // When that happens we change speed to 0
+    if (this.state.driving !== prevState.driving && !this.state.driving) {
+      this.setCurrentSpeed(this.sortedSpeedLimits, true);
     }
 
     // No red lights anymore
-    if (reds.length === 0 && !this.state.driving) {
+    if (reds.length === 0 && !this.state.driving && !this.state.finished) {
       this.setState({ driving: true });
     } else {
       // RED LIGHT IS ON!
@@ -105,6 +104,31 @@ export default class Racer extends Component {
           }));
         }
       }
+    }
+
+    // We have to calculate speed each time car moves, we don't want to miss speed limits
+    if (this.state.position !== prevState.position) {
+      this.setCurrentSpeed(this.sortedSpeedLimits);
+    }
+
+    // We React on the driving boolean
+    // As soon as it changes from false to true we change current speed
+    // And we have interval which will use that current speed to move cars
+    if (this.state.driving !== prevState.driving && this.state.driving) {
+      this.setCurrentSpeed(this.sortedSpeedLimits);
+    } else if (
+      this.state.finished !== prevState.finished &&
+      this.state.finished
+    ) {
+      clearInterval(this.interval);
+    }
+
+    // Racer ends race
+    if (
+      this.state.position !== prevState.position &&
+      this.state.position >= 50
+    ) {
+      this.setState({ driving: false, finished: true });
     }
 
     // Traffic lights have red(bool) property assigned

@@ -108,10 +108,14 @@ export default class RaceWrapper extends Component {
       entityType: "speedLimits"
     });
 
-    const currentFraction = this.getRacerFraction({
+    let currentFraction = this.getRacerFraction({
       currentPosition,
       totalFractions
     });
+
+    if (currentFraction >= 10) {
+      currentFraction = 9;
+    }
 
     for (let i = 0; i < totalFractions; i++) {
       // It doesn't matter if there are any entities of that type found
@@ -244,13 +248,10 @@ export default class RaceWrapper extends Component {
     )[0];
     trafficLight.red = red;
 
-    this.setState(
-      prevState => ({
-        ...prevState,
-        trafficLights: [...this.state.trafficLights, ...trafficLight]
-      }),
-      () => console.log(this.state)
-    );
+    this.setState(prevState => ({
+      ...prevState,
+      trafficLights: [...this.state.trafficLights, ...trafficLight]
+    }));
   };
   render() {
     return (

@@ -3,6 +3,7 @@ import hondaImg from "../../img/honda.png";
 import smartImg from "../../img/smart.png";
 import mazdaImg from "../../img/mazda.png";
 import benzImg from "../../img/benz.png";
+
 export default {
   "1": {
     src: puntoImg,
