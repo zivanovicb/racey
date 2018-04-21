@@ -21,6 +21,7 @@ const Wrapper = styled.div`
 const FractionImg = styled.img`
   width: 52px;
   height: 28px;
+  transition: all 0.5s ease-in-out;
   opacity: ${props => (props.shown ? "1" : "0")};
   @media screen and (max-width: 1200px) {
     width: 62px;
@@ -84,7 +85,18 @@ export default class RaceWrapper extends Component {
     });
   };
 
-  renderRacerFractions = (currentFraction, currentCar, totalFractions) => {
+  getRacerFraction = ({ currentPosition, totalFractions }) => {
+    const { distance } = this.state;
+    return parseInt(currentPosition * totalFractions / distance, 10);
+  };
+
+  renderRacerFractions = (
+    currentPosition,
+    currentCar,
+    totalFractions,
+    isSlowedDown,
+    currentSpeed
+  ) => {
     let fractions = [];
 
     const lightsWithFraction = this.getEntitiesWithFractions({
@@ -94,6 +106,11 @@ export default class RaceWrapper extends Component {
     const speedLimitsWithFraction = this.getEntitiesWithFractions({
       totalFractions,
       entityType: "speedLimits"
+    });
+
+    const currentFraction = this.getRacerFraction({
+      currentPosition,
+      totalFractions
     });
 
     for (let i = 0; i < totalFractions; i++) {
@@ -106,24 +123,38 @@ export default class RaceWrapper extends Component {
       const speedLimit = speedLimitsWithFraction.filter(
         (speedLimit, k) => speedLimit.fraction === i
       )[0];
+
+      const fractionsMatch = i === currentFraction;
       const isMobile = totalFractions === 2;
+      const isFractionSlowedDown = isSlowedDown && fractionsMatch;
       const fr = (
         <Fraction
           key={i}
           index={i}
           isCar={true}
           isMobile={isMobile}
+          isSlowedDown={isFractionSlowedDown}
           hasTrafficLight={!!trafficLight}
         >
-          {<FractionImg src={currentCar.image} shown={i === currentFraction} />}
+          {<FractionImg src={currentCar.image} shown={fractionsMatch} />}
           {!!trafficLight &&
             !isMobile && <FractionTrafficLight red={trafficLight.red} />}
+
           {!!speedLimit &&
+            !isMobile && <FractionSpeedLimit speed={speedLimit.speed} />}
+
+          {isFractionSlowedDown &&
             !isMobile && (
-              <FractionSpeedLimit
-                started={this.state.started}
-                speed={speedLimit.speed}
-              />
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: "5px",
+                  color: "white",
+                  fontSize: "0.7rem"
+                }}
+              >
+                {currentSpeed}km/h
+              </span>
             )}
         </Fraction>
       );
@@ -137,10 +168,22 @@ export default class RaceWrapper extends Component {
     for (let i = 0; i < cars.length; i++) {
       const Row = (
         <FractionRow key={i}>
-          <Racer>
-            {currentFraction => (
+          <Racer
+            started={this.state.started}
+            maxSpeed={cars[i].speed}
+            speedLimits={this.state.speedLimits}
+            trafficLights={this.state.trafficLights}
+            refreshRate={300}
+          >
+            {(currentPosition, isSlowedDown, currentSpeed) => (
               <React.Fragment>
-                {this.renderRacerFractions(currentFraction, cars[i], fractions)}
+                {this.renderRacerFractions(
+                  currentPosition,
+                  cars[i],
+                  fractions,
+                  isSlowedDown,
+                  currentSpeed
+                )}
               </React.Fragment>
             )}
           </Racer>

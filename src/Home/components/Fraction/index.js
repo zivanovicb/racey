@@ -6,12 +6,12 @@ const Fraction = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: black;
+  background: ${props => (props.isSlowedDown ? "rgba(0,0,0,0.2)" : "black")};
   flex: ${props => (props.isMobile ? "1" : "0")};
   padding: ${props =>
     props.index === 0
       ? props.isCar
-        ? "17px 10px"
+        ? "22px 10px"
         : "20px 30px"
       : props.isCar
         ? props.hasTrafficLight

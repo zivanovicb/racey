@@ -38,4 +38,8 @@ FractionLight.propTypes = {
   red: PropTypes.bool.isRequired
 };
 
+FractionLight.defaultProps = {
+  red: false
+};
+
 export default FractionLight;

@@ -10,7 +10,7 @@ function FractionSpeedLimit({ started, speed }) {
         justifyContent: "center",
         alignItems: "center",
         right: "10%",
-        opacity: started ? "1" : "0.3"
+        opacity: "0.3"
       }}
     >
       <div
@@ -41,7 +41,6 @@ function FractionSpeedLimit({ started, speed }) {
 }
 
 FractionSpeedLimit.propTypes = {
-  started: PropTypes.bool.isRequired,
   speed: PropTypes.number.isRequired
 };
 
