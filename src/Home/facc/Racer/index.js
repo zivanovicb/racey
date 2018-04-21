@@ -5,7 +5,10 @@ export default class Racer extends Component {
   state = {
     position: 0,
     maxSpeed: this.props.maxSpeed,
-    currentSpeed: this.props.maxSpeed / 150
+    currentSpeed: this.props.maxSpeed / 150,
+    driving: false
+    // Will have traffic lights spread over state as objects
+    // tf1: {}, tf2: {} and so on
   };
   interval = null;
   sortedSpeedLimits = [];
@@ -38,35 +41,85 @@ export default class Racer extends Component {
       this.setState(prevState => {
         return {
           ...prevState,
+          driving: true,
           position: prevState.position + prevState.currentSpeed
         };
       });
     }, refreshRate);
   };
 
-  calculateSpeed = speedLimits => {
+  // Sets speed which is guided by speed limits
+  setCurrentSpeed = (speedLimits, stopped) => {
     for (let i = 0; i < speedLimits.length; i++) {
       if (this.state.position >= speedLimits[i].position) {
         this.setState(prevState => {
           return {
             ...prevState,
-            currentSpeed: speedLimits[i].speed / 150
+            currentSpeed: stopped ? 0 : speedLimits[i].speed / 150
           };
         });
       }
     }
   };
-  componentDidUpdate(prevProps, prevState) {
+
+  spreadTrafficLights = (trafficLights, cb) => {
+    const state = {};
+    for (let i = 0; i < trafficLights.length; i++) {
+      state["tf" + i] = trafficLights[i];
+    }
+    this.setState({ ...state }, cb);
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    let reds = this.props.trafficLights.filter(
+      (light, i) => light.red === true
+    );
+
     // When a race starts we setup the interval
     if (this.props.started !== prevProps.started && this.props.started) {
       this.setupInterval(this.props.refreshRate);
     }
 
+    // We React to on the driving boolean
+    // As soon as it changes from false to true we change current speed
+    // And we have setInterval which will use that current speed to move cars
+    if (this.state.driving !== prevState.driving && this.state.driving) {
+      this.setCurrentSpeed(this.sortedSpeedLimits);
+    }
+
+    // No red lights anymore
+    if (reds.length === 0 && !this.state.driving) {
+      this.setState({ driving: true });
+    } else {
+      // RED LIGHT IS ON!
+      // We iterate over each light to see if we are nearby and if we should stop
+      for (let i = 0; i < reds.length; i++) {
+        if (
+          this.state.driving &&
+          this.state.position < reds[i].position &&
+          this.state.position > reds[i].position - 5
+        ) {
+          this.setState(prevState => ({
+            ...prevState,
+            driving: false
+          }));
+        }
+      }
+    }
+
+    // Traffic lights have red(bool) property assigned
+    // We wait until traffic lights are transform(they get red property)
+    // And spread them onto this component's state
     if (
-      this.state.position !== prevState.position &&
-      this.state.position !== 0
+      this.props.trafficLights[0].red !== prevProps.trafficLights[0].red &&
+      this.props.trafficLights[0].hasOwnProperty("red")
     ) {
-      this.calculateSpeed(this.sortedSpeedLimits);
+      this.spreadTrafficLights(this.props.trafficLights);
+    }
+
+    // When traffic lights CHANGE we spread them all over this component's state
+    if (this.props.trafficLights !== prevProps.trafficLights) {
+      this.spreadTrafficLights(this.props.trafficLights);
     }
   }
   render() {
