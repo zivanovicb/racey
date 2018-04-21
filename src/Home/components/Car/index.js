@@ -117,7 +117,7 @@ function Car({ image, name, description, id, speed, style, active }) {
 
         <CarTopSpeed>
           <div id="topspeed-icon" style={{ marginRight: "10px" }} />
-          <span>{speed}</span>
+          <span>{speed}km/h</span>
         </CarTopSpeed>
       </CarBottomBar>
 
@@ -126,7 +126,7 @@ function Car({ image, name, description, id, speed, style, active }) {
         <p>{description}</p>
         <CarTopSpeed>
           <div id="topspeed-icon" style={{ marginRight: "10px" }} />
-          <span>{speed}</span>
+          <span>{speed}km/h</span>
         </CarTopSpeed>
       </CarHoverOverlay>
     </CarWrapper>

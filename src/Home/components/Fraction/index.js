@@ -2,6 +2,7 @@ import styled from "styled-components";
 import theme from "../../../theme";
 
 const Fraction = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;

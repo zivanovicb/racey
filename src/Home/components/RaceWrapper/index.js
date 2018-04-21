@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
+import MediaQuery from "react-responsive";
 import theme from "../../../theme";
 import FractionRow from "../FractionRow/index";
 import Fraction from "../Fraction/index";
+import FractionTrafficLight from "../Fraction/FractionTrafficLight";
+import FractionSpeedLimit from "../Fraction/FractionSpeedLimit";
 import Racer from "../../facc/Racer/index";
 import TrafficLight from "../TrafficLight/index";
-import MediaQuery from "react-responsive";
 
 const Wrapper = styled.div`
   width:100%;
@@ -25,6 +27,7 @@ const FractionImg = styled.img`
     height: 43px;
   }
 `;
+
 export default class RaceWrapper extends Component {
   state = {
     distance: this.props.distance,
@@ -70,64 +73,58 @@ export default class RaceWrapper extends Component {
     }
   }
 
-  getTrafficLightsFractions = ({ totalFractions }) => {
+  getEntitiesWithFractions = ({ entityType, totalFractions }) => {
     const { distance } = this.state;
-    return this.state.trafficLights.map((light, i) => {
-      // Fraction where this traffic light should be located
+    return this.state[entityType].map((entity, i) => {
+      // Fraction key is where this specific entity should be located in
       return {
-        ...light,
-        fraction: parseInt(light.position * totalFractions / distance, 10)
+        ...entity,
+        fraction: parseInt(entity.position * totalFractions / distance, 10)
       };
     });
   };
+
   renderRacerFractions = (currentFraction, currentCar, totalFractions) => {
     let fractions = [];
-    const lightsWithFraction = this.getTrafficLightsFractions({
-      totalFractions
+
+    const lightsWithFraction = this.getEntitiesWithFractions({
+      totalFractions,
+      entityType: "trafficLights"
     });
+    const speedLimitsWithFraction = this.getEntitiesWithFractions({
+      totalFractions,
+      entityType: "speedLimits"
+    });
+
     for (let i = 0; i < totalFractions; i++) {
+      // It doesn't matter if there are any entities of that type found
+      // Because here, we only attach if the indices match ⬇
       const trafficLight = lightsWithFraction.filter(
         (light, j) => light.fraction === i
       )[0];
 
+      const speedLimit = speedLimitsWithFraction.filter(
+        (speedLimit, k) => speedLimit.fraction === i
+      )[0];
+      const isMobile = totalFractions === 2;
       const fr = (
         <Fraction
           key={i}
           index={i}
           isCar={true}
-          isMobile={totalFractions === 2}
+          isMobile={isMobile}
           hasTrafficLight={!!trafficLight}
         >
           {<FractionImg src={currentCar.image} shown={i === currentFraction} />}
-          {!!trafficLight && (
-            <div
-              style={{
-                display: "flex",
-                flexFlow: "column nowrap",
-                justifyContent: "center"
-              }}
-            >
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  background: "rgba(18,255,0)",
-                  opacity: !trafficLight.red ? "1" : "0.2",
-                  marginBottom: "5px",
-                  borderRadius: "100%"
-                }}
+          {!!trafficLight &&
+            !isMobile && <FractionTrafficLight red={trafficLight.red} />}
+          {!!speedLimit &&
+            !isMobile && (
+              <FractionSpeedLimit
+                started={this.state.started}
+                speed={speedLimit.speed}
               />
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  background: "red",
-                  opacity: trafficLight.red ? "1" : "0.2",
-                  borderRadius: "100%"
-                }}
-              />
-            </div>
-          )}
+            )}
         </Fraction>
       );
       fractions.push(fr);

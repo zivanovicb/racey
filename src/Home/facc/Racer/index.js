@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 export default class Racer extends Component {
   state = {
-    fraction: 0
+    fraction: 1
   };
   render() {
     return (
