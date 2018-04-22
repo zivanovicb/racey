@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import styled from "styled-components";
+import MediaQuery from "react-responsive";
 import theme from "../theme";
 import Search from "./components/Search/index";
 import data from "./data.json";
 import CarCatalog from "./components/CarCatalog/index";
 import RaceWrapper from "./components/RaceWrapper/index";
+import { Button } from "../components/Button/index";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -25,13 +27,23 @@ const Container = styled.div`
     width: 90%;
   }
 `;
+
+const ButtonHolder = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+`;
+
 export default class Home extends Component {
   state = {
     searchValue: "",
     cars: data.cars,
     distance: data.distance,
     trafficLights: data.traffic_lights,
-    speedLimits: data.speed_limits
+    speedLimits: data.speed_limits,
+    catalogShown: true
   };
 
   componentDidMount() {
@@ -63,15 +75,32 @@ export default class Home extends Component {
   makeTrafficLightsRed = trafficLights =>
     trafficLights.map((light, i) => ({ ...light, red: false }));
 
+  toggleCarCatalog = () => {
+    this.setState(prevState => ({
+      ...prevState,
+      catalogShown: !prevState.catalogShown
+    }));
+  };
+
   render() {
     return (
       <Wrapper>
         <Container>
           <Search handleInputChange={this.handleSearchChange} />
+          <MediaQuery maxDeviceWidth={600}>
+            <ButtonHolder>
+              <Button type="secondary" onClick={this.toggleCarCatalog}>
+                {this.state.catalogShown ? "HIDE CATALOG" : "SHOW CATALOG"}
+              </Button>
+            </ButtonHolder>
+          </MediaQuery>
+
           <CarCatalog
             cars={this.state.cars}
             searchValue={this.state.searchValue}
-            style={{ marginTop: "30px" }}
+            style={{
+              display: this.state.catalogShown ? "block" : "none"
+            }}
           />
           <RaceWrapper
             cars={this.state.cars}

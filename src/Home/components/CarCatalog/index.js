@@ -5,6 +5,10 @@ import Car from "../Car/index";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 const Wrapper = styled.div`
+  margin-top: 30px;
+  @media screen and (max-width: 600px) {
+    margin-top: 10px;
+  }
   #carcatalog-wrapper {
     width: 100%;
     display: flex;

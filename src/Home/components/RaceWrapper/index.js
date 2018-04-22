@@ -9,6 +9,9 @@ import FractionTrafficLight from "../Fraction/FractionTrafficLight";
 import FractionSpeedLimit from "../Fraction/FractionSpeedLimit";
 import Racer from "../../facc/Racer/index";
 import TrafficLight from "../TrafficLight/index";
+import { Button } from "../../../components/Button/index";
+import FractionImg from "../Fraction/FractionImg";
+import headings from "../Fraction/headings";
 
 const Wrapper = styled.div`
   width:100%;
@@ -18,17 +21,16 @@ const Wrapper = styled.div`
   padding: 10px;
 `;
 
-const FractionImg = styled.img`
-  width: 52px;
-  height: 28px;
-  transition: all 0.5s ease-in-out;
-  opacity: ${props => (props.shown ? "1" : "0")};
-  @media screen and (max-width: 1200px) {
-    width: 62px;
-    height: 43px;
+const ButtonHolder = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+  @media screen and (max-width: 600px) {
+    justify-content: center;
   }
 `;
-
 export default class RaceWrapper extends Component {
   state = {
     distance: this.props.distance,
@@ -250,21 +252,6 @@ export default class RaceWrapper extends Component {
   renderTableHeadings = ({ fractions }) => {
     const isMobile = fractions === 2;
 
-    const headings = [
-      { value: "#" },
-      {
-        value: "f1"
-      },
-      { value: "f2" },
-      { value: "f3" },
-      { value: "f4" },
-      { value: "f5" },
-      { value: "f6" },
-      { value: "f7" },
-      { value: "f8" },
-      { value: "f9" }
-    ];
-
     // eslint-disable-next-line
     return headings.map((heading, i) => {
       if (i <= fractions - 1) {
@@ -303,6 +290,13 @@ export default class RaceWrapper extends Component {
       trafficLights: [...this.state.trafficLights, ...trafficLight]
     }));
   };
+
+  startRace = () =>
+    this.setState({
+      started: !this.state.started,
+      ended: this.state.started ? true : false
+    });
+
   render() {
     return (
       <Wrapper style={this.props.style}>
@@ -327,16 +321,11 @@ export default class RaceWrapper extends Component {
                     fractions: this.desktopFractions
                   })}
 
-                  <button
-                    onClick={() =>
-                      this.setState({
-                        started: !this.state.started,
-                        ended: this.state.started ? true : false
-                      })
-                    }
-                  >
-                    OK
-                  </button>
+                  <ButtonHolder>
+                    <Button type="primary" onClick={this.startRace}>
+                      START
+                    </Button>
+                  </ButtonHolder>
                 </React.Fragment>
               );
             } else {
@@ -351,6 +340,12 @@ export default class RaceWrapper extends Component {
                     cars: this.props.cars,
                     fractions: this.mobileFractions
                   })}
+
+                  <ButtonHolder>
+                    <Button type="primary" onClick={this.startRace}>
+                      START
+                    </Button>
+                  </ButtonHolder>
                 </React.Fragment>
               );
             }

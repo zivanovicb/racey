@@ -1,0 +1,26 @@
+$blue: #0074e8;
+
+.btn {
+  border: none;
+  border-radius: 4px;
+  padding: 0.7rem 1.2rem;
+  color: white;
+  font-size: 0.8rem;
+  letter-spacing: 1.5px;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.btn-primary {
+  background: $blue;
+  &:hover {
+    background: darken($blue, 10%);
+  }
+}
+
+.btn-secondary {
+  background: rgba(0, 0, 0, 0.7);
+  &:hover {
+    background: $blue;
+  }
+}
