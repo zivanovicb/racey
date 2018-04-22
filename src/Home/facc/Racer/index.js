@@ -15,8 +15,9 @@ export default class Racer extends Component {
   sortedSpeedLimits = [];
 
   static propTypes = {
-    started: PropTypes.bool.isRequired,
+    id: PropTypes.number.isRequired,
     maxSpeed: PropTypes.number.isRequired,
+    started: PropTypes.bool.isRequired,
     refreshRate: PropTypes.number.isRequired,
     speedLimits: PropTypes.arrayOf(
       PropTypes.shape({
@@ -29,7 +30,8 @@ export default class Racer extends Component {
         position: PropTypes.number.isRequired,
         duration: PropTypes.number.isRequired
       })
-    )
+    ),
+    addToRankings: PropTypes.func.isRequired
   };
   componentDidMount() {
     this.sortedSpeedLimits = this.props.speedLimits.sort(
@@ -96,7 +98,7 @@ export default class Racer extends Component {
         if (
           this.state.driving &&
           this.state.position < reds[i].position &&
-          this.state.position > reds[i].position - 5
+          this.state.position > reds[i].position - 2
         ) {
           this.setState(prevState => ({
             ...prevState,
@@ -121,6 +123,7 @@ export default class Racer extends Component {
       this.state.finished
     ) {
       clearInterval(this.interval);
+      this.props.addToRankings({ id: this.props.id });
     }
 
     // Racer ends race
@@ -132,7 +135,7 @@ export default class Racer extends Component {
     }
 
     // Traffic lights have red(bool) property assigned
-    // We wait until traffic lights are transform(they get red property)
+    // We wait until traffic lights are transformed(they get tue "red" property)
     // And spread them onto this component's state
     if (
       this.props.trafficLights[0].red !== prevProps.trafficLights[0].red &&

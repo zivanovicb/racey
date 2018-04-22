@@ -37,7 +37,7 @@ export default class RaceWrapper extends Component {
     started: false,
     ended: false,
     elapsed: 0,
-    awards: []
+    rankings: []
   };
   static propTypes = {
     cars: PropTypes.arrayOf(
@@ -68,11 +68,27 @@ export default class RaceWrapper extends Component {
   desktopFractions = 10;
   mobileFractions = 2;
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.trafficLights !== prevProps.trafficLights) {
       this.setState({ trafficLights: this.props.trafficLights });
     }
+    if (
+      this.state.rankings.length !== prevState.rankings.length &&
+      this.state.rankings.length === 5
+    ) {
+      // Trafic lights need ended bool
+      this.setState({ started: false, ended: true });
+    }
   }
+
+  addToRankings = racer =>
+    this.setState(
+      prevState => ({
+        ...prevState,
+        rankings: [...prevState.rankings, racer]
+      }),
+      () => console.log("THISHSIHSISHIS", this.state)
+    );
 
   getEntitiesWithFractions = ({ entityType, totalFractions }) => {
     const { distance } = this.state;
@@ -90,6 +106,14 @@ export default class RaceWrapper extends Component {
     return parseInt(currentPosition * totalFractions / distance, 10);
   };
 
+  getRacerRank = id => {
+    let rank;
+    this.state.rankings.filter((racer, i) => {
+      if (racer.id === id) rank = i + 1;
+      return racer.id === id;
+    });
+    return rank;
+  };
   renderRacerFractions = (
     currentPosition,
     currentCar,
@@ -131,6 +155,10 @@ export default class RaceWrapper extends Component {
       const fractionsMatch = i === currentFraction;
       const isMobile = totalFractions === 2;
       const isFractionSlowedDown = isSlowedDown && fractionsMatch;
+
+      let rank;
+      if (currentFraction === 9) rank = this.getRacerRank(currentCar.id);
+
       const fr = (
         <Fraction
           key={i}
@@ -140,11 +168,18 @@ export default class RaceWrapper extends Component {
           isSlowedDown={isFractionSlowedDown}
           hasTrafficLight={!!trafficLight}
         >
+          {i === 0 &&
+            currentFraction !== i && (
+              <span style={{ position: "absolute", color: theme.blue }}>
+                #{currentCar.id}
+              </span>
+            )}
           {<FractionImg src={currentCar.image} shown={fractionsMatch} />}
           {!!trafficLight &&
             !isMobile && <FractionTrafficLight red={trafficLight.red} />}
 
           {!!speedLimit &&
+            currentFraction !== 9 &&
             !isMobile && <FractionSpeedLimit speed={speedLimit.speed} />}
 
           {isFractionSlowedDown &&
@@ -154,10 +189,23 @@ export default class RaceWrapper extends Component {
                   position: "absolute",
                   bottom: "5px",
                   color: "white",
-                  fontSize: "0.7rem"
+                  fontSize: "0.5rem"
                 }}
               >
                 {currentSpeed}km/h
+              </span>
+            )}
+
+          {!!rank &&
+            fractionsMatch && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  color: theme.blue
+                }}
+              >
+                {rank}
               </span>
             )}
         </Fraction>
@@ -173,10 +221,12 @@ export default class RaceWrapper extends Component {
       const Row = (
         <FractionRow key={i}>
           <Racer
-            started={this.state.started}
+            id={cars[i].id}
             maxSpeed={cars[i].speed}
+            started={this.state.started}
             speedLimits={this.state.speedLimits}
             trafficLights={this.state.trafficLights}
+            addToRankings={this.addToRankings}
             refreshRate={300}
           >
             {(currentPosition, isSlowedDown, currentSpeed) => (
@@ -233,11 +283,11 @@ export default class RaceWrapper extends Component {
     return trafficLights.map((light, i) => (
       <TrafficLight
         started={this.state.started}
-        ended={this.state.ended}
         position={light.position}
         duration={light.duration}
         red={light.red}
         toggleTrafficLight={this.toggleTrafficLight}
+        ended={this.state.ended}
         key={i}
       />
     ));
