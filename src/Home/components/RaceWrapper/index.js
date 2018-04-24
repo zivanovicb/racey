@@ -95,7 +95,10 @@ export default class RaceWrapper extends Component {
       // Fraction key is where this specific entity should be located in
       return {
         ...entity,
-        fraction: parseInt(entity.position * totalFractions / distance, 10)
+        fraction:
+          totalFractions > this.mobileFractions
+            ? parseInt(entity.position * totalFractions / distance, 10)
+            : 1
       };
     });
   };
@@ -140,6 +143,8 @@ export default class RaceWrapper extends Component {
       currentFraction = 9;
     }
 
+    const parsedCurrentPosition = parseInt(currentPosition, 10);
+
     for (let i = 0; i < totalFractions; i++) {
       // It doesn't matter if there are any entities of that type found
       // Because here, we only attach if the indices match ⬇
@@ -147,16 +152,17 @@ export default class RaceWrapper extends Component {
         (light, j) => light.fraction === i
       )[0];
 
-      const speedLimit = speedLimitsWithFraction.filter(
+      const speedLimits = speedLimitsWithFraction.filter(
         (speedLimit, k) => speedLimit.fraction === i
-      )[0];
+      );
 
       const fractionsMatch = i === currentFraction;
       const isMobile = totalFractions === 2;
       const isFractionSlowedDown = isSlowedDown && fractionsMatch;
 
       let rank;
-      if (currentFraction === 9) rank = this.getRacerRank(currentCar.id);
+      if (isMobile || currentFraction === 9)
+        rank = this.getRacerRank(currentCar.id);
 
       const fr = (
         <Fraction
@@ -167,22 +173,26 @@ export default class RaceWrapper extends Component {
           isSlowedDown={isFractionSlowedDown}
           hasTrafficLight={!!trafficLight}
         >
-          {i === 0 &&
+          {!isMobile &&
+            i === 0 &&
             currentFraction !== i && (
               <span style={{ position: "absolute", color: theme.blue }}>
                 #{currentCar.id}
               </span>
             )}
-          {<FractionImg src={currentCar.image} shown={fractionsMatch} />}
-          {!!trafficLight &&
-            !isMobile && <FractionTrafficLight red={trafficLight.red} />}
 
-          {!!speedLimit &&
-            currentFraction !== 9 &&
-            !isMobile && <FractionSpeedLimit speed={speedLimit.speed} />}
+          {!isMobile && (
+            <FractionImg src={currentCar.image} shown={fractionsMatch} />
+          )}
 
-          {isFractionSlowedDown &&
-            !isMobile && (
+          {!isMobile &&
+            speedLimits.length > 0 &&
+            currentFraction !== 9 && (
+              <FractionSpeedLimit speed={speedLimits[0].speed} />
+            )}
+
+          {!isMobile &&
+            isFractionSlowedDown && (
               <span
                 style={{
                   position: "absolute",
@@ -195,13 +205,78 @@ export default class RaceWrapper extends Component {
               </span>
             )}
 
-          {!!rank &&
+          {!isMobile &&
+            !!rank &&
             fractionsMatch && (
               <span
                 style={{
                   position: "absolute",
                   top: "2px",
                   color: theme.blue
+                }}
+              >
+                {rank}
+              </span>
+            )}
+
+          {isMobile && <FractionImg src={currentCar.image} shown={i === 0} />}
+
+          {!!trafficLight &&
+            parsedCurrentPosition < trafficLight.position &&
+            (fractionsMatch || i === 1) &&
+            parsedCurrentPosition < this.state.distance && (
+              <FractionTrafficLight red={trafficLight.red} />
+            )}
+
+          {isMobile &&
+            !!speedLimits.length > 0 &&
+            i === 1 &&
+            speedLimits.map(
+              (speedLimit, i) =>
+                parsedCurrentPosition > speedLimit.position ? (
+                  <FractionSpeedLimit key={i} speed={speedLimit.speed} />
+                ) : null
+            )}
+
+          {isMobile &&
+            i === 1 &&
+            parsedCurrentPosition < this.state.distance && (
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: "3px",
+                  color: "white",
+                  fontSize: "1rem"
+                }}
+              >
+                {currentSpeed}km/h
+              </span>
+            )}
+
+          {isMobile &&
+            i === 1 &&
+            parsedCurrentPosition < this.state.distance && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "30%",
+                  color: "white",
+                  fontSize: "1rem"
+                }}
+              >
+                {parsedCurrentPosition}m
+              </span>
+            )}
+
+          {isMobile &&
+            !!rank &&
+            i === 1 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "30%",
+                  color: theme.blue,
+                  fontSize: "1.1rem"
                 }}
               >
                 {rank}
@@ -334,6 +409,11 @@ export default class RaceWrapper extends Component {
                   </FractionRow>
                   {this.renderRacers({
                     cars: this.props.cars,
+                    fractions: this.mobileFractions
+                  })}
+
+                  {this.renderTrafficLights({
+                    trafficLights: this.state.trafficLights,
                     fractions: this.mobileFractions
                   })}
 

@@ -20,7 +20,6 @@ export default class Racer extends Component {
     id: PropTypes.number.isRequired,
     maxSpeed: PropTypes.number.isRequired,
     started: PropTypes.bool.isRequired,
-    paused: PropTypes.bool.isRequired,
     refreshRate: PropTypes.number.isRequired,
     speedLimits: PropTypes.arrayOf(
       PropTypes.shape({
