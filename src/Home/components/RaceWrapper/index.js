@@ -84,13 +84,10 @@ export default class RaceWrapper extends Component {
   }
 
   addToRankings = racer =>
-    this.setState(
-      prevState => ({
-        ...prevState,
-        rankings: [...prevState.rankings, racer]
-      }),
-      () => console.log("THISHSIHSISHIS", this.state)
-    );
+    this.setState(prevState => ({
+      ...prevState,
+      rankings: [...prevState.rankings, racer]
+    }));
 
   getEntitiesWithFractions = ({ entityType, totalFractions }) => {
     const { distance } = this.state;
@@ -229,7 +226,7 @@ export default class RaceWrapper extends Component {
             speedLimits={this.state.speedLimits}
             trafficLights={this.state.trafficLights}
             addToRankings={this.addToRankings}
-            refreshRate={300}
+            refreshRate={100}
           >
             {(currentPosition, isSlowedDown, currentSpeed) => (
               <React.Fragment>
@@ -292,10 +289,9 @@ export default class RaceWrapper extends Component {
   };
 
   startRace = () =>
-    this.setState({
-      started: !this.state.started,
-      ended: this.state.started ? true : false
-    });
+    this.setState(prevState => ({
+      started: !prevState.started ? true : false
+    }));
 
   render() {
     return (
@@ -323,7 +319,7 @@ export default class RaceWrapper extends Component {
 
                   <ButtonHolder>
                     <Button type="primary" onClick={this.startRace}>
-                      START
+                      {this.state.ended ? "START AGAIN" : "START"}
                     </Button>
                   </ButtonHolder>
                 </React.Fragment>

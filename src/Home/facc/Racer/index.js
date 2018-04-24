@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+const SPEED_CONST = 380;
+
 export default class Racer extends Component {
   state = {
     position: 0,
     maxSpeed: this.props.maxSpeed,
-    currentSpeed: this.props.maxSpeed / 150,
+    currentSpeed: this.props.maxSpeed / SPEED_CONST,
     driving: false,
     finished: false
     // Will have traffic lights spread over state as objects
@@ -18,6 +20,7 @@ export default class Racer extends Component {
     id: PropTypes.number.isRequired,
     maxSpeed: PropTypes.number.isRequired,
     started: PropTypes.bool.isRequired,
+    paused: PropTypes.bool.isRequired,
     refreshRate: PropTypes.number.isRequired,
     speedLimits: PropTypes.arrayOf(
       PropTypes.shape({
@@ -57,7 +60,7 @@ export default class Racer extends Component {
         this.setState(prevState => {
           return {
             ...prevState,
-            currentSpeed: stopped ? 0 : speedLimits[i].speed / 150
+            currentSpeed: stopped ? 0 : speedLimits[i].speed / SPEED_CONST
           };
         });
       }
@@ -79,6 +82,10 @@ export default class Racer extends Component {
 
     // When a race starts we setup the interval
     if (this.props.started !== prevProps.started && this.props.started) {
+      this.setState({
+        position: 0,
+        currentSpeed: this.props.maxSpeed / SPEED_CONST
+      });
       this.setupInterval(this.props.refreshRate);
     }
 
@@ -150,8 +157,9 @@ export default class Racer extends Component {
     }
   }
   render() {
-    const isSlowedDown = this.state.currentSpeed !== this.state.maxSpeed / 150;
-    const currentSpeed = parseInt(this.state.currentSpeed * 150, 10);
+    const isSlowedDown =
+      this.state.currentSpeed !== this.state.maxSpeed / SPEED_CONST;
+    const currentSpeed = parseInt(this.state.currentSpeed * SPEED_CONST, 10);
     return (
       <React.Fragment>
         {this.props.children(this.state.position, isSlowedDown, currentSpeed)}

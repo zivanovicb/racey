@@ -13,21 +13,21 @@ export default {
     }
   },
   "2": {
-    src: benzImg,
+    src: mazdaImg,
     style: {
       width: "249px",
       height: "150px"
     }
   },
   "3": {
-    src: hondaImg,
+    src: benzImg,
     style: {
       width: "192px",
       height: "112px"
     }
   },
   "4": {
-    src: mazdaImg,
+    src: hondaImg,
     style: {
       width: "241px",
       height: "126px"
